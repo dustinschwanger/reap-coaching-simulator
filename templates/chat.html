@@ -113,6 +113,26 @@
     const messagesEl = document.getElementById('messages');
     const inputEl = document.getElementById('input');
 
+    // Display welcome message on load
+    window.addEventListener('load', function() {
+      const welcomeText = `Hello! I'm thrilled to have you here for this coaching session. Let's begin with a brief recap of the REAP Coaching for Results Model:
+
+• **Results**: Clarify what the coachee wants to achieve, exploring their goals and the impact achieving this result would have on themselves, others, and the organization.
+
+• **Efforts**: Reflect on the current situation and rate how well it's unfolding. Discuss what they've tried so far, what the results were, and identify specific examples of the issue at hand.
+
+• **Alternatives**: Generate new options by encouraging unrestricted thinking ("if you could do anything..."), exploring additional possibilities, and helping them select which alternatives to pursue.
+
+• **Path**: Decide on next steps by identifying questions that need answering, outlining required resources from self/others/organization, envisioning the post-action situation, and committing to concrete next actions.
+
+Once we begin the coaching scenario, you'll interact with the coachee directly. Type **end coaching** or **finish session** whenever you're ready to wrap up, and I'll give you feedback on your coaching approach.
+
+Before we begin, what is your role and the industry you work in?`;
+
+      addMessage('System', welcomeText, 'ai');
+      inputEl.focus();
+    });
+
     async function send() {
       const text = inputEl.value.trim();
       if (!text) return;
