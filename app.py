@@ -42,7 +42,7 @@ def chat():
 
     # Call OpenAI chat completion
     response = client.chat.completions.create(
-        model="gpt-4o-realtime-preview",
+        model="gpt-4o",
         messages=history
     )
 
