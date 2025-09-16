@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REAP Coaching Simulator</title>
+  <!-- Favicon -->
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+  <!-- Open Sans font -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #f4f7fa;
+      font-family: 'Open Sans', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    #chat {
+      background: white;
+      width: 100%;
+      max-width: 480px;
+      height: 80vh;
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+    #header {
+      background: rgb(20,31,71); /* R20 G31 B71 */
+      color: white;
+      padding: 12px 16px;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 0 0 auto;
+    }
+    #title { font-weight: 600; }
+    #logo { height: 48px; }
+    #messages {
+      flex: 1 1 auto;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #eef2f7;
+    }
+    .msg {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      line-height: 1.6;
+      word-wrap: break-word;
+    }
+    .msg p { margin: 0 0 0.6em; }
+    .msg strong { font-weight: 600; }
+    .user {
+      align-self: flex-end;
+      background: rgb(36,132,198);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .ai {
+      align-self: flex-start;
+      background: #e1e7f0;
+      color: #333;
+      border-bottom-left-radius: 4px;
+    }
+    #input-area {
+      flex: 0 0 auto;
+      display: flex;
+      border-top: 1px solid #d1d5da;
+    }
+    #input {
+      flex: 1 1 auto;
+      padding: 12px;
+      border: none;
+      font-size: 1em;
+      outline: none;
+    }
+    #send {
+      flex: 0 0 auto;
+      padding: 0 16px;
+      background: rgb(36,132,198);
+      color: white;
+      border: none;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #send:hover { background: rgba(36,132,198,0.8); }
+  </style>
+</head>
+<body>
+  <div id="chat">
+    <div id="header">
+      <div id="title">REAP Coaching Simulator</div>
+      <img id="logo" src="/static/logo.png" alt="Company Logo" />
+    </div>
+    <div id="messages"></div>
+    <div id="input-area">
+      <input type="text" id="input" placeholder="Type your message..." autocomplete="off" />
+      <button id="send" onclick="send()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    let history = [];
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('input');
+
+    async function send() {
+      const text = inputEl.value.trim();
+      if (!text) return;
+      addMessage('You', text, 'user');
+      inputEl.value = '';
+      inputEl.focus();
+
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ message: text, history })
+      });
+      const data = await res.json();
+      addMessage('AI', data.reply, 'ai');
+      history = data.history;
+    }
+
+    function addMessage(sender, text, cls) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + cls;
+      const paragraphs = text.trim().split(/\n{2,}/);
+      const html = paragraphs.map(p => {
+        const withBold = p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        const withBreaks = withBold.replace(/\n/g, '<br>');
+        return `<p>${withBreaks}</p>`;
+      }).join('');
+      div.innerHTML = html;
+      messagesEl.appendChild(div);
+      div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    inputEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') send();
+    });
+  </script>
+</body>
+</html>
